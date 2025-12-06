@@ -1,0 +1,16 @@
+#ifndef __PROTOCOL_H
+#define __PROTOCOL_H
+
+#define UART_TX_CHECK_CONNECTION		"[FROM STM32F4] - CHECK CONNECTION"
+#define UART_RX_CHECK_CONNECTION		"[FROM DESKTOP] - CHECK CONNECTION"
+#define UART_CMD_SIZE							5
+#define UART_DATA_SIZE						25
+#define UART_MOTOR_START					"M_STR"
+#define UART_MOTOR_STOP					  "M_STP"
+#define UART_MOTOR_INVERSE				"M_INV"
+#define UART_MOTOR_SPEED					"M_SPD"
+#define UART_MOTOR_PID						"M_PID"
+#define UART_MOTOR_FREQUENCY			"M_FRE"
+#define UART_MOTOR_PLOT					  "M_PLT"
+
+#endif

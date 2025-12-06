@@ -1,0 +1,26 @@
+# Keil uVision / MDK-ARM build files
+*.o
+*.d
+*.crf
+*.dep
+*.axf
+*.htm
+*.lnp
+*.sct
+*.lst
+*.map
+*.hex
+*.bin
+Objects/
+Listings/
+Debug/
+Release/
+
+# CubeMX / STM32CubeIDE specific
+.mxproject
+.settings/
+*.launch
+
+# Keil GUI layout (user specific settings)
+*.uvguix.*
+*.uvoptx
