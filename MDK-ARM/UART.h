@@ -14,7 +14,7 @@ typedef struct
 {
   bool tx;
   bool rx;
-} UARTConnection_t  
+} UARTConnection_t;  
 
 extern UARTConnection_t uart_connection;
 extern uint8_t uart_tx_buffer 	[UART_TX_BUFFER_SIZE];
