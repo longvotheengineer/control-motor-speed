@@ -36,5 +36,9 @@ void uart_rx_handler(uint8_t *uart_rx_buffer)
 		motor.f_PWM = atoi((char *)uart_rx_data);
 		frequency_control(&htim1, motor.f_PWM);
 	}
+	else if (strncmp((char *)uart_rx_cmd, UART_RX_CHECK_CONNECTION, UART_CMD_SIZE) == 0)
+	{
+		uart_connection.rx = true;
+	}
 	memset(uart_rx_buffer, 0, UART_RX_BUFFER_SIZE);
 }
