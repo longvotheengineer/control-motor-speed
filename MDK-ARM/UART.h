@@ -5,6 +5,7 @@
 #include <main.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define UART_TX_BUFFER_SIZE		50
 #define UART_RX_BUFFER_SIZE		30
