@@ -35,19 +35,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		
 		if (uart_connection.rx == false)
 		{
-			if (huart4.gState == HAL_UART_STATE_READY) 
-			{
+			// if (huart4.gState == HAL_UART_STATE_READY) 
+			// {
 				int len = sprintf((char *)uart_tx_buffer, "%s", UART_RX_FAIL_CONNECTION);
 				HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, len);     
-			}
+			// }
 		}
 		else 
 		{
-			if (huart4.gState == HAL_UART_STATE_READY) 
-		   {
+			// if (huart4.gState == HAL_UART_STATE_READY) 
+		 //   {
 		 		int len = sprintf((char *)uart_tx_buffer, "%s\n", UART_TX_CHECK_CONNECTION);
 				HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, len);      
-		   }
+		   // }
 		}
 		uart_connection.rx = false;				
 	}
