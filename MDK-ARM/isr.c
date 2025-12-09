@@ -7,9 +7,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if (huart->Instance == UART4)
 	{
-		memcpy(uart_tx_buffer, uart_rx_buffer, UART_RX_BUFFER_SIZE);
-		HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, UART_RX_BUFFER_SIZE);		
-		memset(&uart_tx_buffer, 0, UART_TX_BUFFER_SIZE);
+		//memcpy(uart_tx_buffer, uart_rx_buffer, UART_RX_BUFFER_SIZE);
+		//HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, UART_RX_BUFFER_SIZE);		
+		//memset(&uart_tx_buffer, 0, UART_TX_BUFFER_SIZE);
 		flag_uart_rx = 1;
 	}
 }
@@ -33,23 +33,26 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//	HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, sizeof(UART_TX_CHECK_CONNECTION));		
 		//memset(&uart_tx_buffer, 0, UART_TX_BUFFER_SIZE);		
 		
+		
+		
+		
 		if (uart_connection.rx == false)
 		{
-			// if (huart4.gState == HAL_UART_STATE_READY) 
-			// {
-				int len = sprintf((char *)uart_tx_buffer, "%s", UART_RX_FAIL_CONNECTION);
+			if (huart4.gState == HAL_UART_STATE_READY) 
+			{
+				int len = sprintf((char *)uart_tx_buffer, "%s\n", UART_CMD_ERR_LOST);
 				HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, len);     
-			// }
+			}
 		}
 		else 
-		{
-			// if (huart4.gState == HAL_UART_STATE_READY) 
-		 //   {
-		 		int len = sprintf((char *)uart_tx_buffer, "%s\n", UART_TX_CHECK_CONNECTION);
+		{	
+			if (huart4.gState == HAL_UART_STATE_READY) 
+		   {
+		 		int len = sprintf((char *)uart_tx_buffer, "%s\n", UART_CMD_ACK_ALIVE);
 				HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, len);      
-		   // }
+		   }
 		}
-		uart_connection.rx = false;				
+		uart_connection.rx=false;	
 	}
 	else if (htim->Instance == TIM5)
 	{

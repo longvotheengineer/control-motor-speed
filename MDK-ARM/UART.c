@@ -2,6 +2,9 @@
 
 UARTConnection_t uart_connection;
 
+
+
+
 uint8_t 	uart_tx_buffer 		[UART_TX_BUFFER_SIZE];
 uint8_t 	uart_rx_buffer		[UART_RX_BUFFER_SIZE];
 uint8_t 	uart_rx_cmd		[UART_CMD_SIZE];	
@@ -36,9 +39,9 @@ void uart_rx_handler(uint8_t *uart_rx_buffer)
 		motor.f_PWM = atoi((char *)uart_rx_data);
 		frequency_control(&htim1, motor.f_PWM);
 	}
-	else if (strncmp((char *)uart_rx_cmd, UART_RX_CHECK_CONNECTION, UART_CMD_SIZE) == 0)
+	else if (strncmp((char *)uart_rx_cmd,UART_CMD_CHECK_ALIVE, UART_CMD_SIZE) == 0)
 	{
-		uart_connection.rx = true;
+		uart_connection.rx = true;	
 	}
 	memset(uart_rx_buffer, 0, UART_RX_BUFFER_SIZE);
 }
