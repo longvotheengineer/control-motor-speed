@@ -5,13 +5,10 @@
 
 	void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
-		if (huart->Instance == UART4)
+		if (huart->Instance == USART2)
 		{
-			//memcpy(uart_tx_buffer, uart_rx_buffer, UART_RX_BUFFER_SIZE);
-			//HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, UART_RX_BUFFER_SIZE);		
-			//memset(&uart_tx_buffer, 0, UART_TX_BUFFER_SIZE);
 			flag_uart_rx = 1;
-		}
+		}		
 	}
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -31,17 +28,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
         uart_timeout_cnt++; 
 
-        if (huart4.gState == HAL_UART_STATE_READY) 
+        if (huart2.gState == HAL_UART_STATE_READY) 
         {
             if (uart_timeout_cnt < 3) 
             {
                 int len = sprintf((char *)uart_ack_buffer, "%s\n", UART_CMD_ACK_ALIVE);
-                HAL_UART_Transmit_DMA(&huart4, uart_ack_buffer, len);      
+                HAL_UART_Transmit_DMA(&huart2, uart_ack_buffer, len);      
             }
             else 
             {
                 int len = sprintf((char *)uart_tx_buffer, "%s %s\n", UART_CMD_ERR_LOST, UART_CMD_ACK_ALIVE);
-                HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, len);                
+                HAL_UART_Transmit_DMA(&huart2, uart_tx_buffer, len);                
                 
                 motor.enable = false; 
                 motor_output = 0;
@@ -55,10 +52,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
         if (flag_uart_plot == 1)
         {
-             if (huart4.gState == HAL_UART_STATE_READY) 
+             if (huart2.gState == HAL_UART_STATE_READY) 
              {
                  int len = sprintf((char *)uart_tx_buffer, "%s %.2f\n", UART_MOTOR_PLOT, motor_speed);                  
-                 HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, len);                            
+                 HAL_UART_Transmit_DMA(&huart2, uart_tx_buffer, len);                            
              } 
         }
     }

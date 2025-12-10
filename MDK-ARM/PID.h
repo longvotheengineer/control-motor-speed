@@ -29,7 +29,7 @@ typedef struct
 extern 	PID_Config motor_PID_config;
 extern	volatile uint32_t 	enc_val_cur;
 extern	volatile uint32_t 	enc_val_pre;
-extern	volatile int16_t	 	enc_val_diff;
+extern	volatile int16_t	enc_val_diff;
 extern	int 	   		     	enc_dir;
 extern	float				 	motor_speed;
 extern	float				 	motor_output;

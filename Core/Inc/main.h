@@ -43,8 +43,11 @@ extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim5;
 	
 extern UART_HandleTypeDef huart4;
+extern UART_HandleTypeDef huart2;
 extern DMA_HandleTypeDef hdma_uart4_tx;
 extern DMA_HandleTypeDef hdma_uart4_rx;
+extern DMA_HandleTypeDef hdma_usart2_tx;
+extern DMA_HandleTypeDef hdma_usart2_rx;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
