@@ -15,25 +15,25 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM2)
     {       
-        enc_val_cur = __HAL_TIM_GET_COUNTER(&htim3);
-        enc_dir     = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim3);
-        enc_val_diff = abs((int16_t)(enc_val_cur - enc_val_pre));
-        enc_val_pre = enc_val_cur;
-        motor_speed = (((float)enc_val_diff / (ENC_PPR * 4)) * (60 / ENC_TIME_SAMPLING)) / (float)ENC_RATIO; 
-        motor_PID_config.measurement = motor_speed;
+        enc_val_cur 								= __HAL_TIM_GET_COUNTER(&htim3);
+        enc_dir     									= __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim3);
+        enc_val_diff 								= abs((int16_t)(enc_val_cur - enc_val_pre));
+        enc_val_pre 								= enc_val_cur;
+        motor_speed								= (((float)enc_val_diff / (ENC_PPR * 4)) * (60 / ENC_TIME_SAMPLING)) / (float)ENC_RATIO; 
+        motor_PID_config.measurement 	= motor_speed;
         PID_Compute(&motor_PID_config);
         motor_control(&motor);      
     }
-		else if (htim->Instance == TIM4) 
+	else if (htim->Instance == TIM4) 
     {
         uart_timeout_cnt++; 
 
         if (huart2.gState == HAL_UART_STATE_READY) 
         {
-            if (uart_timeout_cnt < 3) 
+            if (uart_timeout_cnt < 4) 
             {
-                int len = sprintf((char *)uart_ack_buffer, "%s\n", UART_CMD_ACK_ALIVE);
-                HAL_UART_Transmit_DMA(&huart2, uart_ack_buffer, len);      
+				int len = sprintf((char *)uart_tx_buffer, "%s\n", UART_CMD_ACK_ALIVE);
+                HAL_UART_Transmit_DMA(&huart2, uart_tx_buffer, len);      
             }
             else 
             {

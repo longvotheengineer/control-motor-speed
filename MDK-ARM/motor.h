@@ -14,9 +14,9 @@ typedef struct
 {
 	bool 		enable;
 	bool		direction;
-	uint8_t	duty_cycle;		// [0; 100] percent
-	uint8_t	speed;			// [0; 130] RPM
-	uint32_t	f_PWM;			// [0; 100] kHz
+	uint8_t	duty_cycle;		
+	uint8_t	speed;			
+	uint32_t	f_PWM;			
 }	MotorControl_t;
 
 extern MotorControl_t motor;

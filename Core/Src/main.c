@@ -46,10 +46,7 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
 
-UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_uart4_tx;
-DMA_HandleTypeDef hdma_uart4_rx;
 DMA_HandleTypeDef hdma_usart2_tx;
 DMA_HandleTypeDef hdma_usart2_rx;
 
@@ -61,7 +58,6 @@ DMA_HandleTypeDef hdma_usart2_rx;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_UART4_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM2_Init(void);
@@ -107,7 +103,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_UART4_Init();
   MX_TIM1_Init();
   MX_TIM3_Init();
   MX_TIM2_Init();
@@ -115,8 +110,6 @@ int main(void)
   MX_TIM5_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  HAL_UART_Transmit_DMA(&huart4, uart_tx_buffer, UART_TX_BUFFER_SIZE);
-  HAL_UART_Receive_DMA(&huart4, uart_rx_buffer, UART_RX_BUFFER_SIZE);
   HAL_UART_Transmit_DMA(&huart2, uart_tx_buffer, UART_TX_BUFFER_SIZE);
   HAL_UART_Receive_DMA(&huart2, uart_rx_buffer, UART_RX_BUFFER_SIZE);
 
@@ -448,39 +441,6 @@ static void MX_TIM5_Init(void)
 }
 
 /**
-  * @brief UART4 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_UART4_Init(void)
-{
-
-  /* USER CODE BEGIN UART4_Init 0 */
-
-  /* USER CODE END UART4_Init 0 */
-
-  /* USER CODE BEGIN UART4_Init 1 */
-
-  /* USER CODE END UART4_Init 1 */
-  huart4.Instance = UART4;
-  huart4.Init.BaudRate = 115200;
-  huart4.Init.WordLength = UART_WORDLENGTH_8B;
-  huart4.Init.StopBits = UART_STOPBITS_1;
-  huart4.Init.Parity = UART_PARITY_NONE;
-  huart4.Init.Mode = UART_MODE_TX_RX;
-  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart4) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN UART4_Init 2 */
-
-  /* USER CODE END UART4_Init 2 */
-
-}
-
-/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -523,12 +483,6 @@ static void MX_DMA_Init(void)
   __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
-  /* DMA1_Stream2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
-  /* DMA1_Stream4_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
   /* DMA1_Stream5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
@@ -569,13 +523,12 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
 }
-
 /* USER CODE BEGIN 4 */
+uint32_t PSC;
 void frequency_control(TIM_HandleTypeDef *htim, uint32_t f_PWM)
 {
 	uint32_t f_TIM 	= 168000000;
 	uint32_t ARR	= htim1.Init.Period;
-	uint32_t PSC;
 	
 	PSC = (f_TIM / (ARR + 1)) / f_PWM - 1;
 	
@@ -585,12 +538,9 @@ void frequency_control(TIM_HandleTypeDef *htim, uint32_t f_PWM)
 	__HAL_TIM_ENABLE(htim);
 }
 
-
-
-
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-    if (huart->Instance == UART4) 
+    if (huart->Instance == USART2) 
     {
         HAL_UART_DMAStop(huart);
         
@@ -599,19 +549,9 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
         temp_flag = huart->Instance->DR;
         (void)temp_flag; 
 
-        HAL_UART_Receive_DMA(huart, uart_rx_buffer, UART_RX_BUFFER_SIZE);
-        
-
+        HAL_UART_Receive_DMA(huart, uart_rx_buffer, UART_RX_BUFFER_SIZE);        
     }
 }
-
-
-
-
-
-
-
-
 /* USER CODE END 4 */
 
 /**
