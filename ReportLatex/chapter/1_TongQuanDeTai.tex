@@ -1,0 +1,54 @@
+\newpage
+\section{Tổng quan đề tài}
+\subsection{Đặt vấn đề}
+\indent Trong nền công nghiệp hiện đại và tự động hóa, động cơ điện một chiều (DC Motor) đóng vai trò vô cùng quan trọng, xuất hiện phổ biến trong các hệ thống robot, dây chuyền băng tải, và các thiết bị cơ điện tử. Yêu cầu đặt ra cho các hệ thống này không chỉ là làm cho động cơ quay, mà còn phải điều khiển chính xác tốc độ, đảm bảo độ ổn định và có khả năng giám sát trạng thái hoạt động theo thời gian thực.
+
+\indent Việc điều khiển động cơ bằng vi điều khiển (Microcontroller) là giải pháp tối ưu về chi phí và hiệu năng. Dòng vi điều khiển STM32F4 (ARM Cortex-M4) với khả năng xử lý mạnh mẽ, tích hợp nhiều ngoại vi cao cấp như Timer, UART và đặc biệt là bộ truy cập bộ nhớ trực tiếp (DMA), cho phép thực hiện các tác vụ điều khiển phức tạp với độ chính xác cao.
+
+\indent Tuy nhiên, thách thức lớn trong các hệ thống nhúng điều khiển là vấn đề giao tiếp dữ liệu. Khi hệ thống cần gửi/nhận lượng lớn dữ liệu giám sát liên tục (tốc độ, dòng điện, tham số PID) về máy tính, việc sử dụng phương thức ngắt (Interrupt) truyền thống có thể gây tiêu tốn tài nguyên CPU, làm ảnh hưởng đến chu kỳ lấy mẫu và độ ổn định của thuật toán điều khiển động cơ.
+
+\indent Xuất phát từ thực tế đó, nhóm thực hiện đề tài "Thiết kế hệ thống điều khiển tốc độ động cơ DC sử dụng STM32F407 với giao tiếp UART/DMA và giao diện giám sát trên máy tính". Đề tài tập trung vào việc ứng dụng kỹ thuật DMA để tối ưu hóa luồng dữ liệu, đồng thời xây dựng giao diện người dùng (GUI) để quan sát đáp ứng của hệ thống một cách trực quan.
+% \clearpage
+\subsection{Mục tiêu đề tài}
+\indent Đề tài hướng tới việc giải quyết các bài toán kỹ thuật sau: 
+\begin{enumerate}
+    \item \textbf{Về phần cứng:} Kết nối và điều khiển thành công động cơ DC có gắn Encoder sử dụng board mạch STM32F407 và mạch công suất (cầu H) L298N. \\
+    \item \textbf{Về thuật toán điều khiển: } \\
+    \indent $\bullet$ Tạo xung PWM để điều khiển tốc độ động cơ. \\
+    \indent $\bullet$ Có khả năng thay đổi linh hoạt tần số PWM (Frequency) và độ rộng xung (Duty Cycle) để khảo sát ảnh hưởng của tần số đến hoạt động của động cơ. \\
+    \indent $\bullet$ Đọc tính hiệu từ Encoder để tính toán tốc độ thực tế. 
+    \item \textbf{Về giao tiếp dữ liệu:} \\
+    \indent $\bullet$ Thiết lập giao tiếp UART giữa STM32 và máy tính. \\
+    \indent $\bullet$ Ứng dụng \textbf{DMA (Direct Memory Access)} để truyền nhận dữ liệu tốc độ cao mà không làm gián đoạn CPU, đảm bảo tính thời gian thực (Real-time).
+    \item \textbf{Về giao diện giám sát:} Xây dựng phần mềm GUI trên máy tính cho phép: \\
+    \indent $\bullet$ Cài đặt tốc độ mong muốn (Set Speed) và tần số PWM. \\
+    \indent $\bullet$ Hiển thị đồ thị đáp ứng tốc độ (Response Plot) theo thời gian thực. 
+\end{enumerate}
+\subsection{Đối tượng và phạm vi nghiên cứu} 
+\indent $\bullet$ \textbf{Đối tượng nghiên cứu:} \\
+\indent\indent$-$ Vi điều khiển STM32F407VGT6. \\
+\indent\indent$-$ Động cơ DC Servo (có Encoder). \\
+\indent\indent$-$ Giao thức truyền thông nối tiếp UART và cơ chế DMA. \\
+\indent\indent$-$ Phương pháp điều chế độ rộng xung (PWM). \\
+\indent $\bullet$ \textbf{Phạm vi nghiên cứu: } \\
+\indent\indent$-$ Hệ thống tập trung vào điều khiển tốc độ (Speed Control), chưa đi sâu vào điều khiển vị trí (Position Control). \\
+\indent\indent$-$ Giao diện GUI được thiết kế trên nền tảng Windows. \\
+\indent\indent$-$ Nghiên cứu ảnh hưởng của việc thay đổi tần số PWM và tham số điều khiển đến đáp ứng đầu ra. 
+\clearpage
+\subsection{Phương pháp nghiên cứu}
+\indent $\bullet$ \textbf{Phương pháp lý thuyết: } Nghiên cứu tài liệu Datasheet của STM32F4 Reference Manual, lý thuyết về điều khiển tự động và xử lý tín hiệu số. \\
+\indent $\bullet$ \textbf{Phương pháp thực nghiệm: } \\
+\indent\indent$-$ Mô phỏng giải thuật. \\
+\indent\indent$-$ Lắp ráp mô hình phần cứng thực tế. \\
+\indent\indent$-$ Viết code Firmware trên Keil C hoặc STM32CubeIDE và phần mềm GUI. \\
+\indent\indent$-$ Tiến hành đo đạc, thu thập dữ liệu đáp ứng và tinh chỉnh thông số. 
+\subsection{Bố cục báo cáo}
+\indent Báo cáo được chia thành 5 phần chính: 
+\begin{enumerate}
+    \item Tổng quan đề tài. 
+    \item Cơ sở lý thuyết (Giới thiệu STM32, PWM, UART, DMA, Encoder). 
+    \item Thiết kế hệ thống (Sơ đồ khối, sơ đồ nguyên lý, lưu đồ thuật toán, thiết kế giao thức truyền tin).
+    \item Kết quả thực hiện và Đánh giá (Hình ảnh mô hình, giao diện GUI, đồ thị)
+    \item Kết luận và hướng phát triển. 
+\end{enumerate}
+\newpage

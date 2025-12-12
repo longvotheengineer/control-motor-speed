@@ -1,0 +1,222 @@
+\newpage
+\section{Thiết kế hệ thống}
+\indent Hệ thống được thiết kế theo \textbf{mô hình điều khiển vòng kín (Closed-Loop Control System)}, bao gồm 05 khối chức năng chính tương tác với nhau qua các luồng tín hiệu và luồng năng lượng như hình \ref{blockDiagram}.
+\subsection{Sơ đồ khối hệ thống (System Block Diagram)}
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=1\linewidth]{Image/BlockDiagram.png}
+    \caption{Sơ đồ khối cho toàn bộ hệ thống (System Block Diagram).}
+    \label{blockDiagram}
+\end{figure}
+\indent $\bullet$ \textbf{Khối nguồn (Input Power Source):} Hệ thống sử dụng 02 nguồn cấp độc lập để đảm bảo an toàn và chống nhiễu: \\
+\indent\indent$-$ Nguồn USB 5V: Cung cấp năng lượng cho khối xử lý trung tâm (STM32F407) hoạt động ổn định. \\
+\indent\indent$-$ Nguồn Battery 12V: Cung cấp dòng điện lớn cho khối điều chế công suất (L298N) để vận hành động cơ. \\
+\indent\indent$-$ Hai nguồn này được nối chung cực âm (Common GND) để đồng bộ mức tham chiếu tín hiệu. \\
+\indent $\bullet$ \textbf{Khối xử lý trung tâm (Control Unit - STM32F407):} Đóng vai trò là "bộ não" của hệ thống, thực hiện các nhiệm vụ: \\
+\indent\indent$-$ Tiếp nhận lệnh điều khiển từ máy tính qua giao tiếp UART. \\
+\indent\indent$-$ Đọc tín hiệu xung từ Encoder để tính toán tốc độ thực tế. \\
+\indent\indent$-$ Thực thi thuật toán PID để tính toán sai số và xuất tín hiệu điều khiển. \\
+\indent $\bullet$ \textbf{Khối điều chế công suất (Power Modulator - L298N Driver:)} Đóng vai trò trung gian khuếch đại dòng điện. \\
+\indent\indent$-$ Nhận tín hiệu điều khiển công suất thấp từ vi điều khiển: Tín hiệu PWM (quyết định tốc độ) và tín hiệu GPIO (quyết định chiều quay của động cơ). \\
+\indent\indent$-$ Đóng ngắt nguồn 12V từ pin để cấp dòng điện tương ứng cho động cơ hoạt động. \\
+\indent $\bullet$ \textbf{Khối chấp hành (DC Motor) và Cảm biến (Encoder):} \\
+\indent\indent$-$ Động cơ DC chuyển đổi điện năng thành cơ năng. \\
+\indent\indent$-$ Encoder gắn trên trục động cơ đóng vai trò cảm biến hồi tiếp, gửi các chuỗi xung (Feedback Signal) về vi điều khiển để giám sát tốc độ. \\
+\indent $\bullet$ \textbf{Khối giao diện người dùng (PC/GUI):} Phần mềm trên máy tính cho phép người dùng nhập các tham số cài đặt và hiển thị đồ thị đáp ứng tốc độ theo thời gian thực. \\
+\indent $\bullet$ \textbf{Luồng hoạt động của hệ thống: }
+\begin{enumerate}
+    \item Người dùng gửi lệnh cài đặt tốc độ từ PC xuống KIT STM32F407 Discovery qua chuẩn giao tiếp UART. 
+    \item STM32 so sánh tốc độ đặt với tốc độ thực tế đo được từ Encoder. 
+    \item Thuật toán PID tính toán và điều chỉnh độ rộng xung PWM xuất ra mạch L298N. 
+    \item Mạch L298N điều khiển dòng điện vào động cơ DC để đạt tốc độ mong muốn, hình thành 1 vòng điều khiển khép kín ổn định. 
+\end{enumerate}
+\clearpage
+\subsection{Sơ đồ nguyên lý và kết nối phần cứng}
+\subsubsection{Sơ đồ nguyên lý và mạch PCB}
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=1\linewidth]{Image/schematic.png}
+    \caption{Sơ đồ nguyên lý mạch toàn bộ hệ thống.}
+    \label{schematic}
+\end{figure}
+\indent Dựa trên yêu cầu điều khiển ổn định và chống nhiễu, sơ đồ nguyên lý hệ thống được thiết kế bao gồm các khối chức năng chính như Hình \ref{schematic}. Điểm nổi bật của thiết kế này bao gồm: 
+\begin{enumerate}
+    \item \textbf{Khối Signal Buffering và chuyển mức Logic (Level Shifter):} Hệ thống sử dụng IC đệm dòng 74HC245 nằm giữa vi điều khiển và mạch công suất L298N. \\
+    \indent $\bullet$ Chức năng 1: Chuyển đổi mức logic từ $3.3V$ của STM32 lên $5V$ của L298N để đảm bảo kích mở MOSFET trong cầu H bão hòa hoàn toàn. \\
+    \indent $\bullet$ Chức năng 2: Bảo vệ các chân GPIO của STM32 khỏi các xung điện áp ngược có thể sinh ra từ phía động cơ. 
+    \item \textbf{Khối lọc nhiễu Encoder (Noise Filtering):} Tín hiệu xung pha A và pha B từ Encoder không đi trực tiếp vào vi điều khiển mà đi qua mạch lọc thụ động RC Low-pass Filter (Gốm điện trở nối tiếp và tụ điện xuống mass). Mạch này giúp loại bỏ các gai nhiễu cao tần (Glitch) sinh ra do tia lửa điện chổi than động cơ, giúp bộ đếm Timer của STM32 hoạt động chính xác. 
+    \item \textbf{Khối nguồn (Power Supply):} Sử dụng IC ổn áp tuyến tính AMS1117-5.0 để tạo ra điện áp tham chiếu 5V ổn định cho các cảm biến và IC đệm. 
+\end{enumerate}
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=1\linewidth]{Image/PCB.png}
+    \caption{Thiết kế mạch PCB.}
+    \label{PCB}
+\end{figure}
+\subsubsection{Kết nối phần cứng}
+\indent Dựa trên đặc tả kỹ thuật của KIT STM32F407 Discovery và yêu cầu đề tài, sơ đồ kết nối chân (Pin Mapping) được thiết lập như sau: 
+% \begin{table}[H]
+%     \centering
+%     % \caption{Bảng phân bố chân tín hiệu (Pin Mapping)}
+%     % \label{tab:pin_map}
+%     \renewcommand{\arraystretch}{1.3}
+%     \begin{tabular}{|l|l|l|p{5cm}|}
+%         \hline
+%         \textbf{Chức năng} & \textbf{Pin STM32} & \textbf{Kết nối ngoại vi} & \textbf{Mô tả} \\
+%         \hline
+%         PWM Output & PE9 (TIM1) & L298N - ENA & Tín hiệu điều xung tốc độ. \\
+%         \hline
+%         Motor Dir 1 & PA2 & L298N - IN1 & Tín hiệu chiều quay 1. \\
+%         \hline
+%         Motor Dir 2 & PA3 & L298N - IN2 & Tín hiệu chiều quay 2. \\
+%         \hline
+%         Encoder A & PA6 (TIM3) & Encoder Phase A & Kênh đếm xung A. \\
+%         \hline
+%         Encoder B & PA7 (TIM3) & Encoder Phase B & Kênh đếm xung B. \\
+%         \hline
+%         UART TX & PA0 (UART4) & USB-TTL RX & Truyền dữ liệu (TX). \\
+%         \hline
+%         UART RX & PA1 (UART4) & USB-TTL TX & Nhận dữ liệu (RX). \\
+%         \hline
+%     \end{tabular}
+%     \caption{Bảng phân bố chân tín hiệu (Pin Mapping)}
+%     \label{tab:pin_map}
+% \end{table}
+\begin{table}[H]
+    \centering
+    % \caption{Bảng phân bố chân tín hiệu (Cấu hình PCB thực tế)}
+    % \label{tab:pin_map_final}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|l|l|l|p{5cm}|}
+        \hline
+        \textbf{Chức năng} & \textbf{Pin STM32} & \textbf{Kết nối ngoại vi} & \textbf{Mô tả} \\
+        \hline
+        PWM Output & \textbf{PE9} (TIM1) & L298N - ENA & Tín hiệu điều xung tốc độ. \\
+        \hline
+        Encoder A & \textbf{PC6} (TIM3) & Encoder Phase A & Kênh đếm xung A. \\
+        \hline
+        Encoder B & \textbf{PC7} (TIM3) & Encoder Phase B & Kênh đếm xung B. \\
+        \hline
+        UART TX & \textbf{PA2} (USART2) & USB-TTL RX & Truyền dữ liệu lên máy tính. \\
+        \hline
+        UART RX & \textbf{PA3} (USART2) & USB-TTL TX & Nhận dữ liệu từ máy tính. \\
+        \hline
+        Motor Dir 1 & \textbf{PD0} & L298N - IN1 & Tín hiệu điều khiển chiều quay 1. \\
+        \hline
+        Motor Dir 2 & \textbf{PD1} & L298N - IN2 & Tín hiệu điều khiển chiều quay 2. \\
+        \hline
+    \end{tabular}
+    \caption{Bảng phân bố chân tín hiệu.}
+    \label{tab:pin_map_final}
+\end{table}
+\subsection{Phân bố tài nguyên (Resource Allocation)}
+\indent Để hệ thống hoạt động đa nhiệm (vừa nhận dữ liệu từ GUI, vừa điểu khiển động cơ, vừa đọc Encoder), vi điều khiển được cấu hình sử dụng các tài nguyên sau: \\
+\indent $\bullet$ \textbf{TIM1:} Cấu hình chế độ \textbf{PWM Generation}. \\
+\indent $\bullet$ \textbf{TIM3:} Cấu hình chế độ \textbf{Encoder Mode.} \\
+\indent $\bullet$ \textbf{TIM2:} Cấu hình \textbf{Timer Interrupt} với chu kỳ lấy mẫu $T_s = 10ms$. Đây là chu kỳ thực hiện thuật toán PID rời rạc. \\
+\indent $\bullet$ \textbf{UART2 và DMA1:} Cấu hình chế độ truyền nhận \textbf{DMA Circular.} 
+% \clearpage
+\subsection{Lưu đồ thuật toán (Flowcharts)}
+% \indent Hệ thống Firmware được chia thành 02 luồng xử lý song song: \\
+% \indent $\bullet$ \textbf{Luồng chương trình chính (Hàm main()):} Khởi tạo ngoại vi $\rightarrow$ Bật DMA nhận dữ liệu UART $\rightarrow$ Vòng lặp \code{while(1)} kiểm tra cờ hiệu xử lý gói tin UART.  \\
+% \indent $\bullet$ \textbf{Luồng ngắt Timer:} Thực hiện tính toán PID. \\
+    % \begin{enumerate}
+    %     \item Bắt đầu ngắt Timer. 
+    %     \item Đọc giá trị Encoder.
+    %     \item Tính tốc độ.
+    %     \item Tính toán PID.
+    %     \item Kiểm tra giới hạn bão hòa. 
+    %     \item Xuất xung PWM. 
+    %     \item Kết thúc ngắt.
+    % \end{enumerate}
+\subsubsection{Lưu đồ thuật toán cho chương trình chính}
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{Image/[ControlEmbeddedSystem]-FlowChart_main.drawio.png}
+    \caption{Lưu đồ thuật toán trong chương trình chính.}
+    \label{flow-main}
+\end{figure}
+\indent Lưu đồ thuật toán trong chương trình chính mô tả trình tự khởi động và chu trình xử lý sự kiện của hệ thống, được minh họa như Hình \ref{flow-main} 
+\begin{enumerate}
+    \item \textbf{Khởi tạo hệ thống:} Ngay sau khi cấp nguồn và nạp code, vi điều khiển thực hiện cấu hình xung nhịp (System Clock), khởi tạo các ngoại vi (GPIO), Timer (cho PWM và Encoder), và thiết lập thông số cho module UART. 
+    \item \textbf{Kích hoạt DMA:} Hệ thống gọi hàm kích hoạt bộ thu UART ở chế độ \textbf{DMA (Direct Memory Access)} với cơ chế vòng tròn (Circular). Việc này đảm bảo dữ liệu đến sẽ được tự động chuyển vào bộ nhớ đệm mà không cần CPU can thiệp tức thời. 
+    \item \textbf{Vòng lặp chính} (While(1) trong hàm main()): Hệ thống đi vào vòng lặp vô hạn để liên tục giám sát trạng thái hoạt động: \\
+    \indent$\bullet$ \textbf{Kiểm tra tín hiệu: } Vi điều khiển liên tục kiểm tra cờ báo hiệu trạng thái nhận dữ liệu \code{flag\_uart\_rx}. \\
+    \indent$\bullet$ \textbf{Nếu không có tín hiệu:} Hệ thống tiếp tục duy trì trạng thái chờ hoặc thực hiện các tác vụ nền khác, sau đó lặp lại bước kiểm tra. \\
+    \indent$\bullet$ \textbf{Nếu có tín hiệu \code{flag\_uart\_rx == 1}}: Chương trình sẽ gọi hàm xử lý ngắt \code{uart\_rx\_handler()} để phân tích gói tin nhận được. Tại đây, chuỗi dữ liệu sẽ được tách thành mã lệnh (Command) và giá trị tham số (Data) để cập nhật cho các biến điều khiển. 
+    \item \textbf{Kết thúc chu trình xử lý:} Sau khi cập nhật tham số thành công, hệ thống tiến hành xóa cờ báo hiệu và làm sạch bộ đệm để sẵn sàng cho phiên giao tiếp tiếp theo, sau đó quay trở lại ban đầu vòng lặp. 
+\end{enumerate}
+\subsubsection{Lưu đồ thuật toán điều khiển PID}
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=1\linewidth]{Image/[ControlEmbeddedSystem]-FlowChart_timer.drawio.png}
+    \caption{Lưu đồ thuật toán điều khiển PID.}
+    \label{flow-PID}
+\end{figure}
+\indent Lưu đồ thuật toán điều khiển PID (Hình \ref{flow-PID}) mô tả quá trình xử lý tín hiệu hồi tiếp và tính toán điều khiển, được thực hiện bên trong trình phục vụ ngắt định thời (Timer Interrupt Service Routine). 
+\begin{enumerate}
+    \item \textbf{Kích hoạt ngắt (Timer Interrupt):} Bộ định thời được cấu hình để tạo ra ngắt định kỳ với chu kỳ lấy mẫu cố định $T_s = 10ms$. 
+    \item \textbf{Thu thập dữ liệu (Data Acquisition:)} \\
+    \indent$\bullet$ \textbf{Đọc Encoder:} Vi điều khiển đọc giá trị xung đếm được từ Timer Encoder. \\
+    \indent$\bullet$ \textbf{Tính tốc độ:} Dựa trên độ chênh lệch xung so với chu kỳ trước, hệ thống tính toán vận tốc tức thời của động cơ (đơn vị RPM). 
+    \item \textbf{Tính toán điều khiển (PID Computation):} \\
+    \indent$\bullet$ \textbf{Tính sai số $(e)$:} Xác định độ lệch giữa tốc độ mong muốn (Setpoint) và tốc độ thực tế. \\
+    \indent$\bullet$ \textbf{Thuật toán PID:} Tính toán ba thành phần Tỷ lệ (P), Tích phân (I), Vi phân (D) và tổng hợp thành tín hiệu điều khiển ngõ ra $(u)$. 
+    \item \textbf{Khâu bão hòa (Saturation):} Kiểm tra và giới hạn tín hiệu điều khiển trong khoảng cho phép để bảo vệ hệ thống và chống hiện tượng bão hòa tích phân. 
+    \item \textbf{Cập nhật chấp hành (Actuation Update):} \\
+    \indent$\bullet$ \textbf{Quy đổi:} Chuyển đổi giá trị điều khiển PID sang giá trị nạp vào thanh ghi PWM. \\
+    \indent$\bullet$ \textbf{Xuất tín hiệu:} Cập nhật trạng thái các chân GPIO (chiều quay của động cơ) và độ rộng xung PWM để điều khiển mạch công suất L298N. 
+    \item \textbf{Thoát ngắt:} Kết thúc chu trình điều khiển, vi điều khiển quay lại thực hiện chương trình chính cho đến khi chu kỳ 10ms tiếp theo đến. 
+\end{enumerate}
+\clearpage
+\subsection{Thiết kế giao thức truyền thông (UART Protocol Design)}
+\begin{enumerate}
+    \item \textbf{Kiến trúc khung truyền (Frame Architecture)} \\
+    \indent Để đảm bảo tính đồng bộ và tận dụng tối đa khả năng của bộ điều khiển DMA (Direct Memory Access), hệ thống sử dụng kiến trúc \textbf{khung truyền độ dài cố định (Fixed-Length Frame)}. Mỗi gói tin gửi từ máy tính xuống vi điều khiển luôn có kích thước cố định là 30 Bytes. \\
+    \indent Cấu trúc gói tin bao gồm hai thành phần chính: 
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{|c|c|p{8cm}|}
+            \hline
+            \textbf{Trường (Field)} & \textbf{Kích thước} & \textbf{Mô tả} \\
+            \hline
+            CMD & 5 Bytes & Mã lệnh (Mnemonic). Ví dụ: \texttt{M\_STR}, \texttt{M\_PLT}. \\
+            \hline
+            DATA & 25 Bytes & Giá trị tham số dạng ASCII (Zero-padded). \\
+            \hline
+            \textbf{TỔNG} & \textbf{30 Bytes} & Tổng độ dài khung truyền cố định. \\
+            \hline
+        \end{tabular}
+        \caption{Cấu trúc khung truyền dữ liệu (Frame Structure.)}
+        \label{frameStructure}
+    \end{table}
+    \item \textbf{Kỹ thuật đệm 'space' vào chuỗi} \\
+    \indent Do DMA được cấu hình để kích hoạt ngắt khi nhận đủ số lượng byte cố định (30 bytes), các dữ liệu có giá trị nhỏ phải được chèn thêm các ký tự \texttt{'space'} vào phía trước để lấp đầy khung truyền. 
+    \begin{itemize}
+        \item \textit{Sai:} Gửi \texttt{M\_STP} (Chỉ 5 bytes $\rightarrow$ DMA chưa ngắt, hệ thống treo).
+        \item \textit{Đúng:} Gửi \texttt{M\_STP + 25 [space]} (Đủ 30 bytes $\rightarrow$ DMA ngắt xử lý ngay).
+    \end{itemize}
+\clearpage
+    \item \textbf{Bảng tập lệnh điều khiển (Command Table)} \\
+    \indent Hệ thống hỗ trợ các tập lệnh điều khiển và giám sát được liệt kê chi tiết trong bảng dưới đây: 
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{|l|l|l|p{5cm}|}
+            \hline
+            \textbf{Chức năng} & \textbf{Mã lệnh} & \textbf{Ví dụ gói tin} & \textbf{Ý nghĩa} \\
+            \hline
+            Start & \texttt{M\_STR} & \texttt{M\_STRKp Ki Kd SP ...[space]} & Bắt đầu đặt Kp Ki Kd và chạy thuật toán điều khiển. \\
+            \hline
+            Stop & \texttt{M\_STP} & \texttt{M\_STP...[space]} & Dừng động cơ ngay lập tức. \\
+            \hline
+            Inverse & \texttt{M\_INV} & \texttt{M\_INV...[space]} & Đảo chiều quay động cơ. \\
+            \hline
+            Set Freq & \texttt{M\_FRE} & \texttt{M\_FRE20000...[space]} & Cài đặt tần số PWM (VD: 20kHz). \\
+            \hline
+
+        \end{tabular}
+        \caption{Bảng tập lệnh điều khiển (Command Table).}
+        \label{cmdTable}
+    \end{table}
+
+\end{enumerate}
