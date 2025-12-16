@@ -1,0 +1,46 @@
+\newpage
+\section{Kết quả thực hiện và Đánh giá}
+\subsection{Giao diện giám sát hệ thống (GUI)}
+Nhóm đã xây dựng thành công phần mềm giao diện trên máy tính (GUI) để phục vụ quá trình điều khiển và giám sát. Giao diện được thiết kế trực quan, bao gồm các khu vực chức năng chính:
+\begin{itemize}
+    \item \textbf{Connection Settings:} Cài đặt thông số cổng COM và Baudrate (115200).
+    \item \textbf{PID Controller:} Cho phép tinh chỉnh 3 tham số $K_p, K_i, K_d$ và cài đặt tốc độ mong muốn (Setpoint) ngay khi hệ thống đang chạy (Online Tuning).
+    \item \textbf{Graph Panel:} Đồ thị hiển thị song song hai đường đặc tính: Tốc độ đặt (Màu xanh) và Tốc độ thực tế (Màu đỏ) theo thời gian thực.
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Image/GUI-UI.png} 
+    \caption{Giao diện phần mềm điều khiển khi ở chế độ chờ}
+    \label{fig:gui_ui}
+\end{figure}
+\clearpage
+\subsection{Kết quả đáp ứng tốc độ (PID Response)}
+Tiến hành thử nghiệm hệ thống với động cơ DC không tải. Các tham số bộ điều khiển được thiết lập ban đầu: $K_p = 5.0, K_i = 0.1, K_d = 0.1$. Tốc độ đặt là \textbf{150 RPM}.
+Kết quả thực nghiệm trên đồ thị (Hình \ref{fig:pid_response}) cho thấy:
+\begin{enumerate}
+    \item \textbf{Thời gian đáp ứng:} Động cơ tăng tốc rất nhanh, đạt được tốc độ đặt chỉ sau khoảng thời gian ngắn (dưới 0.5 giây).
+    \item \textbf{Độ vọt lố (Overshoot):} Có xuất hiện vọt lố nhẹ (khoảng 160 RPM) do khâu $K_p$ lớn giúp đáp ứng nhanh, nhưng sau đó nhanh chóng dao động tắt dần nhờ khâu $K_d$.
+    \item \textbf{Sai số xác lập:} Đường màu đỏ (Tốc độ thực) bám sát đường màu xanh (Setpoint). Sai số tĩnh gần như bằng 0 nhờ tác động của khâu $K_i$.
+\end{enumerate}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Image/GUI-PID.png} 
+    \caption{Đáp ứng tốc độ động cơ tại Setpoint = 150 RPM}
+    \label{fig:pid_response}
+\end{figure}
+\clearpage
+\subsection{Khả năng phát hiện lỗi (Error Handling)}
+Hệ thống được tích hợp tính năng giám sát đường truyền. Khi kết nối vật lý (dây TX/RX) bị ngắt hoặc nguồn cấp cho vi điều khiển bị mất, phần mềm sẽ tự động phát hiện và gửi cảnh báo "Connection Lost" tới người dùng, đồng thời dừng cập nhật đồ thị để tránh sai lệch dữ liệu \textit{(như Hình \ref{fig:error_handle_TX} và Hình \ref{fig:error_handle_RX})}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{Image/lostTX.png} 
+    \caption{Cảnh báo mất kết nối đường truyền (TX Error)}
+    \label{fig:error_handle_TX}
+\end{figure}
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{Image/lostRX.png}
+    \caption{Cảnh báo mất kết nối đường truyền (RX Error).}
+    \label{fig:error_handle_RX}
+\end{figure}
+

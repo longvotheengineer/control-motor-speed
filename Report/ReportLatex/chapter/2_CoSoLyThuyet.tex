@@ -1,0 +1,185 @@
+\newpage
+\section{Cơ sở lý thuyết}
+\subsection{KIT STM32F407 Discovery}
+\indent Kit phát triển \textbf{STM32F4 Discovery} được thiết kế dựa trên dòng vi điều khiển hiệu năng cao STM32F407, cho phép người dùng dễ dàng phát triển các ứng dụng xử lý âm thanh. Kit tích hợp \textbf{công cụ debug ST-LINK/V2-A}, một cảm biến gia tốc kỹ thuật số MEMS, một microphone kỹ thuật số, một bộ DAC âm thanh kèm driver loa Class D, các đèn LED, nút nhấn và cổng USB OTG Micro-AB.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Image/STM32F407.png}
+    \caption{KIT STM32F407 Discovery.}
+    \label{stm32f407}
+\end{figure}
+\indent Ngoài ra, kit hỗ trợ kết nối các bo mở rộng chuyên dụng thông qua các chân header mở rộng.
+
+\indent Các tính năng của board: 
+\begin{itemize}
+    \item \textbf{Vi điều khiển STM32F407VGT6}:
+    \begin{itemize}
+        \item Lõi xử lý Arm Cortex-M4 32-bit với FPU.
+        \item 1 MB Flash.
+        \item 192 KB RAM.
+        \item Đóng gói LQFP100.
+    \end{itemize}
+
+    \item USB OTG Full-Speed.
+    \item Cảm biến gia tốc MEMS 3 trục.
+    \item Cảm biến âm thanh MEMS (microphone số đa hướng).
+    \item Bộ DAC âm thanh với driver loa Class D tích hợp.
+    \item Nút nhấn người dùng và nút reset.
+
+    \item \textbf{Hệ thống đèn LED}:
+    \begin{itemize}
+        \item LD1 (đỏ/xanh lá): trạng thái giao tiếp USB.
+        \item LD2 (đỏ): báo nguồn 3.3 V.
+        \item Bốn LED người dùng: LD3 (cam), LD4 (xanh), LD5 (đỏ), LD6 (xanh dương).
+        \item Hai LED USB OTG: LD7 (xanh, VBUS), LD8 (đỏ, quá dòng).
+    \end{itemize}
+
+    \item \textbf{Các cổng kết nối}:
+    \begin{itemize}
+        \item USB Micro-AB.
+        \item Jack xuất âm thanh stereo (tai nghe).
+        \item Header mở rộng chuẩn 2.54 mm, cung cấp toàn bộ chân I/O của LQFP100.
+    \end{itemize}
+
+    \item \textbf{Nguồn cấp linh hoạt}:
+    \begin{itemize}
+        \item USB từ ST-LINK.
+        \item Cổng USB ngoài.
+        \item Nguồn ngoài (3 V hoặc 5 V).
+    \end{itemize}
+
+    \item \textbf{Phần mềm hỗ trợ miễn phí}:
+    \begin{itemize}
+        \item Ví dụ mẫu trong gói STM32CubeF4 MCU Package.
+        \item STSW-STM32068 sử dụng thư viện chuẩn (legacy).
+    \end{itemize}
+
+    \item \textbf{Debugger/Programmer ST-LINK/V2-A}:
+    \begin{itemize}
+        \item Mass storage.
+        \item Virtual COM port.
+        \item Debug port.
+    \end{itemize}
+
+    \item \textbf{Hỗ trợ nhiều IDE}:
+    \begin{itemize}
+        \item IAR Embedded Workbench.
+        \item MDK-ARM.
+        \item STM32CubeIDE.
+    \end{itemize}
+\end{itemize}
+\subsection{Động cơ DC và cảm biến Encoder}
+\subsubsection{Động cơ điện 1 chiều (DC motor)}
+\indent Động cơ DC là cơ cấu chấp hành biến đổi điện năng thành cơ năng dựa trên hiện tượng cảm ứng điện từ. Cấu tạo cơ bản gồm hai phần:
+
+\indent$\bullet$ \textbf{Stator (Phần tĩnh):} Thường là nam châm vĩnh cửu tạo ra từ trường.
+
+\indent$\bullet$ \textbf{Rotor (Phần quay):} Các cuộn dây quấn quanh lõi sắt từ. Khi có dòng điện chạy qua cuộn dây đặt trong từ trường, lực từ (Lực Lorentz) sẽ sinh ra ngẫu lực làm quay rotor.
+
+\indent Vận tốc quay của động cơ tỉ lệ thuận với điện áp đặt vào hai đầu cực. Do đó, để điều khiển tốc độ, ta sử dụng phương pháp thay đổi điện áp trung bình (thông qua PWM).
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Image/DCmotor.png}
+    \caption{Động cơ DC (DC motor).}
+    \label{DCmotor}
+\end{figure}
+\subsubsection{Cảm biến tốc độ (Incremental Encoder)}
+\indent Để thực hiện điều khiển vòng kín (Closed-loop), hệ thống sử dụng \textbf{Encoder tương đối (Incremental Encoder)} gắn ở trục động cơ.
+
+\indent$\bullet$ \textbf{Nguyên lý:} Encoder bao gồm một đĩa quay có các rãnh và hệ thống thu phát quang (LED và Phototransistor). Khi đĩa quay, ánh sáng bị cắt ngắt quãng tạo ra các chuỗi xung vuông.
+
+\indent$\bullet$ \textbf{Xác định chiều quay:} Encoder xuất ra hai kênh tín hiệu A và B lệch pha nhau 90 độ điện (Quadrature output).
+
+\indent\indent$-$ Nếu xung A sớm pha hơn B $\rightarrow$ Động cơ quay thuận. \\
+\indent\indent$-$ Nếu xung A trễ pha hơn B $\rightarrow$ Động cơ quay nghịch.
+
+\indent$\bullet$ \textbf{Đo tốc độ:} Vi điều khiển sẽ đếm số lượng xung (sườn lên/xuống) trong một khoảng thời gian nhất định để tính ra vận tốc (RPM).
+\clearpage
+\subsection{Mạch điều khiển động cơ (H-Bridge L298N)}
+\indent Do dòng điện từ chân vi điều khiển (GPIO) rất nhỏ (khoảng 20mA), không thể chạy trực tiếp động cơ, nên cần một mạch công suất trung gian. Nhóm sử dụng module L298N \textit{(Hình \ref{L298N})}. \\
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{Image/L298N.png}
+    \caption{Module L298N.}
+    \label{L298N}
+\end{figure}
+\indent$\bullet$ \textbf{Cấu trúc:} L298N tích hợp hai mạch cầu H (H-Bridge) bên trong. Mạch cầu H cho phép đảo chiều dòng điện chạy qua động cơ, từ đó đảo chiều quay. \\
+\indent$\bullet$ \textbf{Nguyên lý hoạt động:} \\
+\indent\indent$-$ Module có các chân điều khiển \code{IN1}, \code{IN2} và chân cho phép \code{ENA}. \\
+\indent\indent$-$ Khi \code{IN1 = High}, \code{IN2 = Low} $\rightarrow$ Dòng điện chạy từ A sang B $\rightarrow$ Quay thuận. \\
+\indent\indent$-$ Khi \code{IN1 = Low}, \code{IN2 = High} $\rightarrow$ Dòng điện chạy từ B sang A $\rightarrow$ Quay nghịch. \\
+\indent\indent$-$ Tín hiệu PWM được cấp vào chân \code{ENA} để đóng ngắt dòng điện liên tục, giúp điều chỉnh tốc độ.
+\subsection{Các giao thức và thuật toán điều khiển}
+\subsubsection{Kỹ thuật điều chế độ rộng xung (Pulse Width Modulation)}
+\indent \textbf{PWM (Pulse Width Modulation)} là phương pháp thay đổi điện áp trung bình đặt lên tải bằng cách thay đổi độ rộng của chuỗi xung vuông liên tiếp. Thay vì thay đổi biên độ điện áp (điều này gây tiêu hao năng lượng trên linh kiện bán dẫn), PWM thực hiện đóng ngắt nguồn điện cấp vào động cơ với tần số cao. \\
+% Công thức tính Duty Cycle
+\indent Tham số quan trọng nhất của PWM là \textbf{Duty Cycle (Chu kỳ nhiệm vụ - D)}, được xác định bởi công thức:
+\begin{equation}
+    D = \frac{T_{on}}{T} \times 100\%
+    \label{eq:duty_cycle}
+\end{equation}
+
+% Công thức tính điện áp trung bình
+Điện áp trung bình cấp cho động cơ sẽ tỷ lệ thuận với Duty Cycle:
+\begin{equation}
+    V_{out} = V_{in} \times D
+    \label{eq:vout_avg}
+\end{equation}
+Trong đó:
+\begin{itemize}
+    \item $V_{out}$: Điện áp trung bình (V).
+    \item $V_{in}$: Điện áp nguồn cấp (V).
+    \item $D$: Chu kỳ nhiệm vụ (\%).
+\end{itemize}
+\subsubsection{Giao thức UART (Universal Asynchronous Receiver - Transmitter)}
+\indent UART là giao thức truyền thông nối tiếp không đồng bộ, đóng vai trò cầu nối trao đổi dữ liệu giữa vi điều khiển STM32 và máy tính (PC). Do là giao thức không đồng bộ, nó không cần dây tín hiệu xung nhịp (Clock) đi kèm, giúp tiết kiệm số lượng dây dẫn (chỉ cần 2 dây: TX để truyền và RX để nhận). \\
+\indent Để quá trình truyền tin thành công, cả hai thiết bị phải thống nhất các tham số sau: \\
+\indent$\bullet$ \textbf{Baud rate (Tốc độ baud):} Số bit truyền được trong một giây. Trong đề tài này, hệ thống sử dụng tốc độ 115200 bps để đảm bảo truyền lượng dữ liệu lớn nhanh chóng. \\
+\indent$\bullet$ \textbf{Khung truyền (Data Frame):} Cấu trúc của một gói dữ liệu cơ bản bao gồm: \\
+\indent\indent$-$ \textbf{Start Bit:} 1 bit báo hiệu bắt đầu (mức thấp). \\
+\indent\indent$-$ \textbf{Data Bits:} 8 bit dữ liệu chính. \\
+\indent\indent$-$ \textbf{Stop Bit:} 1 bit báo hiệu kết thúc (mức cao). \\
+\indent Trong hệ thống này, UART nhận lệnh điều khiển từ GUI xuống STM32 và gửi ngược lại thông số tốc độ thực tế để vẽ đồ thị đáp ứng.
+
+\subsubsection{Cơ chế truy cập bộ nhớ trực tiếp (Direct Memory Access - DMA)}
+\indent \textbf{Truy cập bộ nhớ trực tiếp (Direct Memory Access - DMA)} là một tính năng chuyên dụng của vi điều khiển, cho phép truyền dữ liệu tốc độ cao giữa ngoại vi (như UART, ADC) và bộ nhớ (RAM) hoặc giữa bộ nhớ với bộ nhớ mà không cần sự can thiệp của CPU. Đây là kỹ thuật nâng cao được áp dụng để tối ưu hóa hiệu năng của hệ thống thời gian thực (Real-time). \\
+\indent Thông thường, khi UART nhận được một byte dữ liệu, nó sẽ gửi yêu cầu ngắt (Interrupt) đến CPU. CPU phải tạm dừng công việc hiện tại, lưu ngữ cảnh, thực hiện hàm ngắt để sao chép dữ liệu vào RAM, sau đó mới quay lại làm việc tiếp. Nếu dữ liệu truyền liên tục với tốc độ cao, CPU sẽ bị quá tải vì phải xử lý ngắt liên tục, dẫn đến việc tính toán thuật toán điều khiển động cơ bị trễ hoặc sai lệch. \\
+\indent \textbf{Giải pháp DMA:} DMA hoạt động như một bộ điều khiển trung chuyển dữ liệu độc lập. \\
+\indent$\bullet$ \textbf{Nguyên lý:} Khi UART nhận được dữ liệu, DMA sẽ tự động "gắp" dữ liệu đó từ thanh ghi của UART và chuyển thẳng vào vùng nhớ đệm (Buffer) trong RAM mà không cần thông qua CPU. \\
+\indent$\bullet$ \textbf{Chế độ Circular (Vòng tròn):} Hệ thống sử dụng DMA ở chế độ Circular kết hợp với bộ đệm vòng. Khi bộ đệm đầy, DMA tự động quay lại ghi đè vào đầu bộ đệm. Điều này đảm bảo luồng dữ liệu từ máy tính xuống vi điều khiển luôn được tiếp nhận liên tục và không bao giờ bị mất mát, trong khi CPU hoàn toàn rảnh rỗi để tập trung xử lý thuật toán PID. 
+% Nguyên lý hoạt động trong STM32F4:
+
+% Master & Slave: Trong kiến trúc bus của STM32, DMA đóng vai trò là một "Master" (tương tự như CPU). Khi được kích hoạt, nó có quyền kiểm soát bus dữ liệu để thực hiện việc sao chép.
+
+% Giảm tải CPU: Trong phương pháp truyền thống (Polling hoặc Interrupt), mỗi khi có 1 byte dữ liệu từ UART, CPU phải dừng tác vụ hiện tại, lưu ngữ cảnh, chạy chương trình ngắt để cất byte đó vào RAM, rồi mới quay lại. Với DMA, CPU chỉ cần cấu hình địa chỉ nguồn, địa chỉ đích và số lượng byte cần truyền. Sau đó, CPU hoàn toàn rảnh tay để thực hiện các thuật toán phức tạp (như tính toán PID).
+
+% Cơ chế trọng tài (Arbitration): Khi cả CPU và DMA cùng muốn truy cập bộ nhớ, một bộ trọng tài (Bus Matrix) sẽ phân phối quyền truy cập, thường là theo kiểu "Round-robin" hoặc ưu tiên, đảm bảo CPU không bị "đói" tài nguyên mà DMA vẫn hoạt động mượt mà.
+\subsubsection{Thuật toán điều khiển PID}
+\indent Để đảm bảo động cơ quay ổn định đúng tốc độ đặt bất chấp tải trọng thay đổi, hệ thống sử dụng bộ điều khiển hồi tiếp PID (Proportional - Integral - Derivative). \\
+\indent Sơ đồ khối hệ thống điều khiển như sau: \\
+\indent$\bullet$ \textbf{Input (Setpoint):} Tốc độ mong muốn cài đặt từ GUI. \\
+\indent$\bullet$ \textbf{Feedback:} Tốc độ thực tế đo được từ Encoder. \\
+\indent$\bullet$ \textbf{Error ($e$):} Sai số giữa tốc độ đặt và tốc độ thực ($e = Setpoint - Actual$). \\
+% Công thức PID
+\indent Bộ điều khiển PID tính toán giá trị điều khiển $u(t)$ dựa trên sai số $e(t)$ thông qua 3 thành phần: 
+\begin{enumerate}
+    \item \textbf{Khâu Tỷ lệ (Proportional - $K_p$):} Tạo ra tín hiệu điều khiển tỷ lệ với sai số hiện tại. Giúp hệ thống phản ứng nhanh, nhưng nếu $K_p$ quá lớn sẽ gây dao động (vọt lố). 
+    \item \textbf{Khâu Tích phân (Integral - $K_i$):} Cộng dồn sai số theo thời gian. Thành phần này có vai trò triệt tiêu sai số xác lập (sai số tĩnh), giúp tốc độ thực tế bằng đúng tốc độ đặt về lâu dài.
+    \item \textbf{Khâu Vi phân (Derivative - $K_d$):} Phản ứng với tốc độ thay đổi của sai số. Giúp giảm độ vọt lố và làm hệ thống ổn định nhanh hơn khi có thay đổi đột ngột.
+\end{enumerate}
+\indent Công thức toán học của bộ điều khiển PID rời rạc: 
+\begin{equation}
+    u(t) = K_p e(t) + K_i \int_{0}^{t} e(\tau) d\tau + K_d \frac{de(t)}{dt}
+    \label{eq:pid_formula}
+\end{equation}
+\indent Trong đó: 
+\begin{itemize}
+    \item $K_p$: Hệ số khâu Tỷ lệ (Proportional).
+    \item $K_i$: Hệ số khâu Tích phân (Integral).
+    \item $K_d$: Hệ số khâu Vi phân (Derivative).
+    \item $e(t)$: Sai số tại thời điểm $t$ ($Setpoint - Actual$).
+\end{itemize}
+
+
+
+
