@@ -4,7 +4,7 @@ UARTConnection_t uart_connection;
 uint8_t 	uart_timeout_cnt;
 uint8_t 	uart_tx_buffer 		[UART_TX_BUFFER_SIZE];
 uint8_t 	uart_rx_buffer		[UART_RX_BUFFER_SIZE];
-uint8_t 	uart_rx_cmd		[UART_CMD_SIZE];	
+uint8_t 	uart_rx_cmd			[UART_CMD_SIZE];	
 uint8_t 	uart_rx_data		[UART_DATA_SIZE];	
 
 void uart_rx_handler(uint8_t *uart_rx_buffer)
@@ -16,15 +16,15 @@ void uart_rx_handler(uint8_t *uart_rx_buffer)
 		
 	if (strncmp((char *)uart_rx_cmd, UART_MOTOR_START, UART_CMD_SIZE) == 0)
 	{
-		motor.enable = true;
-		flag_uart_plot = 1;	
+		motor.enable 	= true;
+		flag_uart_plot 	= 1;	
 		sscanf((char *)uart_rx_data, "%f %f %f %f", 
 		&motor_PID_config.Kp, &motor_PID_config.Ki, &motor_PID_config.Kd, &motor_PID_config.setpoint); 
 	}
 	else if (strncmp((char *)uart_rx_cmd, UART_MOTOR_STOP, UART_CMD_SIZE) == 0)
 	{
-		motor.enable = false;
-		flag_uart_plot = 0;	
+		motor.enable 	= false;
+		flag_uart_plot 	= 0;	
 		motor_PID_config.integrator = 0;
 	}
 	else if (strncmp((char *)uart_rx_cmd, UART_MOTOR_INVERSE, UART_CMD_SIZE) == 0)
