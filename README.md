@@ -1,5 +1,7 @@
 # STM32F4 DC Motor PID Control System
 [![Language](https://img.shields.io/badge/Language-C%2FEmbedded-blue.svg)](https://www.st.com/en/embedded-software/stm32cube-mcu-packages.html)
+[![C++](https://img.shields.io/badge/Language-C++-00599C.svg?logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
+[![Qt](https://img.shields.io/badge/Framework-Qt-41CD52.svg?logo=qt&logoColor=white)](https://www.qt.io/)
 [![Hardware](https://img.shields.io/badge/Hardware-STM32F407-green.svg)](https://www.st.com/en/evaluation-tools/stm32f4discovery.html)
 [![License](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Completed-success.svg)]()
