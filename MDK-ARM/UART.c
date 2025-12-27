@@ -38,8 +38,8 @@ void uart_rx_handler(uint8_t *uart_rx_buffer)
 	}
 	else if (strncmp((char *)uart_rx_cmd,UART_CMD_CHECK_ALIVE, UART_CMD_SIZE) == 0)
 	{
-		uart_connection.rx = true;
-		uart_timeout_cnt = 0;
+		uart_connection.rx 	= true;
+		uart_timeout_cnt 	= 0;
 	}
 	memset(uart_rx_buffer, 0, UART_RX_BUFFER_SIZE);
 }
