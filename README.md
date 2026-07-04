@@ -8,6 +8,8 @@
 
 > **Comprehensive implementation of a digital speed control system for DC motors using the STM32F407VGT6 microcontroller. The system features a robust PID algorithm, non-blocking UART/DMA communication, and a desktop interface for real-time monitoring and control.**
 
+![image](https://github.com/longvotheengineer/control-motor-speed/blob/main/Report/response-result-qt.png)
+
 ---
 
 ## Table of Contents
